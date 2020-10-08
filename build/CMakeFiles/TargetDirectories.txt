@@ -1,0 +1,4 @@
+/home/martin/workspace/rws-plugin/build/CMakeFiles/rebuild_cache.dir
+/home/martin/workspace/rws-plugin/build/CMakeFiles/Plugin.dir
+/home/martin/workspace/rws-plugin/build/CMakeFiles/edit_cache.dir
+/home/martin/workspace/rws-plugin/build/CMakeFiles/Plugin_autogen.dir
