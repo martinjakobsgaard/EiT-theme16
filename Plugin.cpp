@@ -10,16 +10,6 @@
 // standard includes
 #include <boost/bind.hpp>
 
-// RobWork library includes
-#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
-#include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
-#include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
-
-// UR RTDE includes
-#include <ur_rtde/rtde_control_interface.h>
-#include <ur_rtde/rtde_receive_interface.h>
-#include <ur_rtde/rtde_io_interface.h>
-
 Plugin::Plugin():
     rws::RobWorkStudioPlugin("Plugin", QIcon("../plugin.png"))
 {
@@ -43,6 +33,8 @@ Plugin::Plugin():
     connect(_btn2, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
     pLayout->setRowStretch(row,1);
+
+    is_connected = false;
 }
 
 
@@ -116,6 +108,26 @@ void Plugin::homeRobot()
     rws_robot->setQ(home,rws_state);
     getRobWorkStudio()->setState(rws_state);
 }
+
+void Plugin::connectRobot()
+{
+    std::cout << "Connecting to " << ur_robot_ip << "..." << std::endl;
+    if(!is_connected)
+    {
+        std::cout << "Control interface:\t";
+        ur_robot = new ur_rtde::RTDEControlInterface(ur_robot_ip);
+        std::cout << "Receive interface:\t";
+        ur_robot_receive = new ur_rtde::RTDEReceiveInterface(ur_robot_ip);
+        std::cout << "IO interface:\t";
+        ur_robot_io = new ur_rtde::RTDEIOInterface(ur_robot_ip);
+
+        is_connected = true;
+        std::cout << "Done connecting" << std::endl;
+    }
+    else
+        std::cout << "Already connected..." << std::endl;
+}
+
 
 void Plugin::createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state)
 {
