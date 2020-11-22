@@ -10,7 +10,16 @@
 // standard includes
 #include <boost/bind.hpp>
 
-// Note: Icon relative to robwork wd (i.e. workcell)
+// RobWork library includes
+#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
+#include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
+#include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
+
+// UR RTDE includes
+#include <ur_rtde/rtde_control_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
+#include <ur_rtde/rtde_io_interface.h>
+
 Plugin::Plugin():
     rws::RobWorkStudioPlugin("Plugin", QIcon("../plugin.png"))
 {
@@ -57,7 +66,7 @@ void Plugin::open(rw::models::WorkCell* workcell)
         rws_state = rws_wc->getDefaultState();
 
         // Locate robot in workcell
-        robot = rws_wc->findDevice<rw::models::SerialDevice>("UR-6-85-5-A");
+        rws_robot = rws_wc->findDevice<rw::models::SerialDevice>("UR-6-85-5-A");
 
         // Use rws collision checker
         collisionDetector = rw::common::ownedPtr(new rw::proximity::CollisionDetector(rws_wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy()));
@@ -82,12 +91,13 @@ void Plugin::clickEvent()
     {
         log().info() << "Button 1 pressed!\n";
         buttonDemoEvent("Button 1");
+
     }
     else if(obj == _btn2)
     {
         log().info() << "Button 2 pressed!\n";
         buttonDemoEvent("Home robot");
-        homeRobotEvent();
+        homeRobot();
     }
 }
 
@@ -101,8 +111,40 @@ void Plugin::buttonDemoEvent(std::string text)
     std::cout << "\"" << text << "\" pressed!" << std::endl;
 }
 
-void Plugin::homeRobotEvent()
+void Plugin::homeRobot()
 {
-    robot->setQ(home,rws_state);
+    rws_robot->setQ(home,rws_state);
     getRobWorkStudio()->setState(rws_state);
+}
+
+void Plugin::createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state)
+{
+
+    rw::pathplanning::PlannerConstraint constraint = rw::pathplanning::PlannerConstraint::make(collisionDetector.get(), rws_robot, state);
+    rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(rws_robot), constraint.getQConstraintPtr());
+    rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean<rw::math::Q>();
+    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, eps, rwlibs::pathplanners::RRTPlanner::RRTConnect);
+
+    rw::trajectory::QPath qpath;
+    std::cout << "Generating path" << std::endl;
+    planner->query(start, goal, qpath);
+    std::cout << "Found path" << std::endl;
+
+    path.clear();
+    //Pushing path to output
+    for(const auto &q : qpath)
+    {
+        std::vector<double> q_copy = q.toStdVector();
+        path.push_back(addMove(q_copy, 0.4, 0.4));
+    }
+}
+
+std::vector<double> Plugin::addMove(std::vector<double> pos, double acc = 0.5, double vel = 0.5)
+{
+    std::vector<double> move = {acc, vel};
+    std::vector<double> position_and_move;
+    position_and_move.reserve(pos.size() + move.size());
+    position_and_move.insert( position_and_move.end(), pos.begin(), pos.end() );
+    position_and_move.insert( position_and_move.end(), move.begin(), move.end() );
+    return position_and_move;
 }

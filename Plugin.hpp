@@ -29,13 +29,15 @@ private slots:
     void clickEvent();
     void stateChangedListener(const rw::kinematics::State& state);
     void buttonDemoEvent(std::string);
-    void homeRobotEvent();
+    void homeRobot();
+    void createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state);
+    std::vector<double> addMove(std::vector<double> pos, double acc, double vel);
 
 private:
     rw::proximity::CollisionDetector::Ptr collisionDetector;
     rw::models::WorkCell::Ptr rws_wc;
     rw::kinematics::State rws_state;
-    rw::models::Device::Ptr robot;
+    rw::models::Device::Ptr rws_robot;
     QPushButton *_btn0,*_btn1,*_btn2;
     rw::math::Q home = rw::math::Q(6, 0, 0, 0, 0, 0, 0);
     std::string robot_ip = "192.168.0.212";
