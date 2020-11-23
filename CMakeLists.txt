@@ -46,12 +46,15 @@ endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+# RTDE
+find_package(ur_rtde REQUIRED)
+
 # Add the source files to build
 set(SrcFiles Plugin.cpp resources.qrc)
 
 # The shared library to build:
 add_library(Plugin MODULE ${SrcFiles})
-target_link_libraries(Plugin PUBLIC ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
+target_link_libraries(Plugin PUBLIC ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES} PRIVATE ur_rtde::rtde)
 target_include_directories(Plugin PUBLIC ${ROBWORKSTUDIO_INCLUDE_DIRS} ${ROBWORK_INCLUDE_DIRS})
 
 message("-- " ${PROJECT_NAME} " done!")

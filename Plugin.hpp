@@ -36,10 +36,10 @@ private slots:
     void clickEvent();
     void stateChangedListener(const rw::kinematics::State& state);
     void buttonDemoEvent(std::string);
-    void homeRobot();
+    //void homeRobot();
     void connectRobot();
-    void createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state);
-    std::vector<double> addMove(std::vector<double> pos, double acc, double vel);
+    //void createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state);
+    //std::vector<double> addMove(std::vector<double> pos, double acc, double vel);
 
 private:
     std::atomic_bool is_connected;
@@ -55,7 +55,8 @@ private:
     rw::kinematics::State rws_state;
     rw::models::Device::Ptr rws_robot;
     QPushButton *_btn0,*_btn1,*_btn2;
-    rw::math::Q home = rw::math::Q(6, 0, 0, 0, 0, 0, 0);
+
+    std::vector<double> homeQ = {0, 0, 0, 0, 0, 0};
 };
 
 #endif /*PLUGIN_HPP*/

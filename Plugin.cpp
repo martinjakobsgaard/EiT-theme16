@@ -88,8 +88,8 @@ void Plugin::clickEvent()
     else if(obj == _btn2)
     {
         log().info() << "Button 2 pressed!\n";
-        buttonDemoEvent("Home robot");
-        homeRobot();
+        buttonDemoEvent("Home-robot");
+        //homeRobot();
     }
 }
 
@@ -103,19 +103,37 @@ void Plugin::buttonDemoEvent(std::string text)
     std::cout << "\"" << text << "\" pressed!" << std::endl;
 }
 
+/*
 void Plugin::homeRobot()
 {
-    rws_robot->setQ(home,rws_state);
-    getRobWorkStudio()->setState(rws_state);
+    if(!is_connected)
+    {
+        std::cout << "No connection to the robot" << std::endl;
+        return;
+    }
+
+    std::cout << "Moving to 'Home'... " << std::endl;
+
+    std::vector<std::vector<double>> path;
+    std::vector<double> fromQ = ur_robot_receive->getActualQ();
+    std::vector<double> toQ = homeQ;
+    rw::kinematics::State tmp_state = rws_state;
+
+    createPathRRTConnect(fromQ, toQ, 0.05, path, tmp_state);
+
+    std::cout << "Moving robot..." << std::endl;
+    ur_robot->moveJ(path);
 }
+*/
 
 void Plugin::connectRobot()
 {
-    std::cout << "Connecting to " << ur_robot_ip << "..." << std::endl;
+    std::cout << "Connecting to " << ur_robot_ip << std::endl;
     if(!is_connected)
     {
         std::cout << "Control interface:\t";
         ur_robot = new ur_rtde::RTDEControlInterface(ur_robot_ip);
+        return;
         std::cout << "Receive interface:\t";
         ur_robot_receive = new ur_rtde::RTDEReceiveInterface(ur_robot_ip);
         std::cout << "IO interface:\t";
@@ -128,7 +146,7 @@ void Plugin::connectRobot()
         std::cout << "Already connected..." << std::endl;
 }
 
-
+/*
 void Plugin::createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state)
 {
 
@@ -160,3 +178,4 @@ std::vector<double> Plugin::addMove(std::vector<double> pos, double acc = 0.5, d
     position_and_move.insert( position_and_move.end(), move.begin(), move.end() );
     return position_and_move;
 }
+*/
