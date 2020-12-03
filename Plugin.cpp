@@ -24,7 +24,7 @@ Plugin::Plugin():
     pLayout->addWidget(_btn0, row++, 0);
     connect(_btn0, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
-    _btn1 = new QPushButton("Button1");
+    _btn1 = new QPushButton("Connect robot");
     pLayout->addWidget(_btn1, row++, 0);
     connect(_btn1, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
@@ -32,11 +32,14 @@ Plugin::Plugin():
     pLayout->addWidget(_btn2, row++, 0);
     connect(_btn2, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
+    _btn3 = new QPushButton("Mimic robot");
+    pLayout->addWidget(_btn3, row++, 0);
+    connect(_btn3, SIGNAL(clicked()), this, SLOT(clickEvent()));
+
     pLayout->setRowStretch(row,1);
 
     is_connected = false;
 }
-
 
 Plugin::~Plugin()
 {
@@ -77,19 +80,23 @@ void Plugin::clickEvent()
     if(obj == _btn0)
     {
         log().info() << "Button 0 pressed!\n";
-        buttonDemoEvent("Button 0");
     }
     else if(obj == _btn1)
     {
         log().info() << "Button 1 pressed!\n";
-        buttonDemoEvent("Button 1");
+        connectRobot();
 
     }
     else if(obj == _btn2)
     {
         log().info() << "Button 2 pressed!\n";
-        buttonDemoEvent("Home-robot");
-        //homeRobot();
+        homeRobot();
+    }
+
+    else if(obj == _btn3)
+    {
+        log().info() << "Button 3 pressed!\n";
+        startRobotMimic();
     }
 }
 
@@ -98,12 +105,31 @@ void Plugin::stateChangedListener(const rw::kinematics::State& state)
     log().info() << "State changed!";
 }
 
-void Plugin::buttonDemoEvent(std::string text)
+void Plugin::startRobotMimic()
 {
-    std::cout << "\"" << text << "\" pressed!" << std::endl;
+    if(robotMimicThread.joinable())
+        robotMimicThread.join();
+    robotMimicThread = std::thread(&Plugin::runRobotMimic, this);
 }
 
-/*
+void Plugin::runRobotMimic()
+{
+    if(!is_connected)
+    {
+        std::cout << "Robot not connected" << std::endl;
+        return;
+    }
+
+    while(true)
+    {
+        std::vector<double> currentQ = ur_robot_receive->getActualQ();
+        rw::kinematics::State s = rws_state;
+        rws_robot->setQ(currentQ, s);
+        getRobWorkStudio()->setState(s);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
+
 void Plugin::homeRobot()
 {
     if(!is_connected)
@@ -124,7 +150,6 @@ void Plugin::homeRobot()
     std::cout << "Moving robot..." << std::endl;
     ur_robot->moveJ(path);
 }
-*/
 
 void Plugin::connectRobot()
 {
@@ -146,10 +171,8 @@ void Plugin::connectRobot()
         std::cout << "Already connected..." << std::endl;
 }
 
-/*
 void Plugin::createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state)
 {
-
     rw::pathplanning::PlannerConstraint constraint = rw::pathplanning::PlannerConstraint::make(collisionDetector.get(), rws_robot, state);
     rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(rws_robot), constraint.getQConstraintPtr());
     rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean<rw::math::Q>();
@@ -178,4 +201,3 @@ std::vector<double> Plugin::addMove(std::vector<double> pos, double acc = 0.5, d
     position_and_move.insert( position_and_move.end(), move.begin(), move.end() );
     return position_and_move;
 }
-*/

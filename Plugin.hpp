@@ -17,6 +17,12 @@
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
 
+// Standard includes
+#include <iostream>
+#include <thread>
+#include <utility>
+#include <chrono>
+
 class QPushButton;
 
 class Plugin: public rws::RobWorkStudioPlugin
@@ -32,14 +38,16 @@ public:
     virtual void close();
     virtual void initialize();
 
+    void runRobotMimic();
+    void connectRobot();
+    void startRobotMimic();
+
 private slots:
     void clickEvent();
     void stateChangedListener(const rw::kinematics::State& state);
-    void buttonDemoEvent(std::string);
-    //void homeRobot();
-    void connectRobot();
-    //void createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state);
-    //std::vector<double> addMove(std::vector<double> pos, double acc, double vel);
+    void homeRobot();
+    void createPathRRTConnect(std::vector<double> start, std::vector<double> goal, double eps, std::vector<std::vector<double>> &path, rw::kinematics::State state);
+    std::vector<double> addMove(std::vector<double> pos, double acc, double vel);
 
 private:
     std::atomic_bool is_connected;
@@ -54,9 +62,11 @@ private:
     rw::models::WorkCell::Ptr rws_wc;
     rw::kinematics::State rws_state;
     rw::models::Device::Ptr rws_robot;
-    QPushButton *_btn0,*_btn1,*_btn2;
+    QPushButton *_btn0,*_btn1,*_btn2, *_btn3;
 
     std::vector<double> homeQ = {0, 0, 0, 0, 0, 0};
+
+    std::thread robotMimicThread;
 };
 
 #endif /*PLUGIN_HPP*/
