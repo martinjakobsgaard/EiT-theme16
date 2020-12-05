@@ -20,21 +20,21 @@ Plugin::Plugin():
 
     int row = 0;
 
-    _btn0 = new QPushButton("Button0");
-    pLayout->addWidget(_btn0, row++, 0);
-    connect(_btn0, SIGNAL(clicked()), this, SLOT(clickEvent()));
+    _btnConnect = new QPushButton("Connect robot");
+    pLayout->addWidget(_btnConnect, row++, 0);
+    connect(_btnConnect, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
-    _btn1 = new QPushButton("Connect robot");
-    pLayout->addWidget(_btn1, row++, 0);
-    connect(_btn1, SIGNAL(clicked()), this, SLOT(clickEvent()));
+    _btnHome = new QPushButton("Home robot");
+    pLayout->addWidget(_btnHome, row++, 0);
+    connect(_btnHome, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
-    _btn2 = new QPushButton("Home robot");
-    pLayout->addWidget(_btn2, row++, 0);
-    connect(_btn2, SIGNAL(clicked()), this, SLOT(clickEvent()));
+    _btnMimic = new QPushButton("Mimic robot");
+    pLayout->addWidget(_btnMimic, row++, 0);
+    connect(_btnMimic, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
-    _btn3 = new QPushButton("Mimic robot");
-    pLayout->addWidget(_btn3, row++, 0);
-    connect(_btn3, SIGNAL(clicked()), this, SLOT(clickEvent()));
+    _btnPrint = new QPushButton("Print location");
+    pLayout->addWidget(_btnPrint, row++, 0);
+    connect(_btnPrint, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
     pLayout->setRowStretch(row,1);
 
@@ -77,26 +77,27 @@ void Plugin::close()
 void Plugin::clickEvent()
 {
     QObject *obj = sender();
-    if(obj == _btn0)
-    {
-        log().info() << "Button 0 pressed!\n";
-    }
-    else if(obj == _btn1)
+    if(obj == _btnConnect)
     {
         log().info() << "Button 1 pressed!\n";
         connectRobot();
 
     }
-    else if(obj == _btn2)
+    else if(obj == _btnHome)
     {
         log().info() << "Button 2 pressed!\n";
         homeRobot();
     }
 
-    else if(obj == _btn3)
+    else if(obj == _btnMimic)
     {
         log().info() << "Button 3 pressed!\n";
         startRobotMimic();
+    }
+    else if (obj == _btnPrint)
+    {
+        log().info() << "Button Print pressed!\n";
+        printLocation();
     }
 }
 
@@ -151,17 +152,35 @@ void Plugin::homeRobot()
     ur_robot->moveJ(path);
 }
 
+void Plugin::printArray(std::vector<double> print)
+{
+    std::cout << "{ ";
+    for(size_t i = 0; i < print.size()-1; i++)
+        std::cout << print[i] << ", ";
+    std::cout << print[print.size()-1] << " }" << std::endl;
+}
+
+void Plugin::printLocation()
+{
+    std::cout << "Joint configuration:" << std::endl;
+    std::vector<double> actualQ=ur_robot_receive->getActualQ();
+    printArray(actualQ);
+
+    std::cout << "TCP location:" << std::endl;
+    std::vector<double> actualL=ur_robot_receive->getActualTCPPose();
+    printArray(actualL);
+}
+
 void Plugin::connectRobot()
 {
     std::cout << "Connecting to " << ur_robot_ip << std::endl;
     if(!is_connected)
     {
-        std::cout << "Control interface:\t";
+        std::cout << "Control interface:\t" << std::endl;
         ur_robot = new ur_rtde::RTDEControlInterface(ur_robot_ip);
-        return;
-        std::cout << "Receive interface:\t";
+        std::cout << "Receive interface:\t" << std::endl;
         ur_robot_receive = new ur_rtde::RTDEReceiveInterface(ur_robot_ip);
-        std::cout << "IO interface:\t";
+        std::cout << "IO interface:\t" << std::endl;
         ur_robot_io = new ur_rtde::RTDEIOInterface(ur_robot_ip);
 
         is_connected = true;

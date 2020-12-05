@@ -42,6 +42,9 @@ public:
     void connectRobot();
     void startRobotMimic();
 
+    void printLocation();
+    void printArray(std::vector<double> print);
+
 private slots:
     void clickEvent();
     void stateChangedListener(const rw::kinematics::State& state);
@@ -62,9 +65,9 @@ private:
     rw::models::WorkCell::Ptr rws_wc;
     rw::kinematics::State rws_state;
     rw::models::Device::Ptr rws_robot;
-    QPushButton *_btn0,*_btn1,*_btn2, *_btn3;
+    QPushButton *_btnConnect,*_btnHome, *_btnMimic, *_btnPrint;
 
-    std::vector<double> homeQ = {0, 0, 0, 0, 0, 0};
+    std::vector<double> homeQ = { 2.04046, -1.47102, 1.17649, -1.26727, -1.54478, -0.120219 };
 
     std::thread robotMimicThread;
 };
