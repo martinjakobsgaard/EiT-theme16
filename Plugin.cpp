@@ -61,7 +61,7 @@ void Plugin::open(rw::models::WorkCell* workcell)
         rws_state = rws_wc->getDefaultState();
 
         // Locate robot in workcell
-        rws_robot = rws_wc->findDevice<rw::models::SerialDevice>("UR-6-85-5-A");
+        rws_robot = rws_wc->findDevice<rw::models::SerialDevice>("UR5e_2018");
 
         // Use rws collision checker
         collisionDetector = rw::common::ownedPtr(new rw::proximity::CollisionDetector(rws_wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy()));
