@@ -36,6 +36,10 @@ Plugin::Plugin():
     pLayout->addWidget(_btnPrint, row++, 0);
     connect(_btnPrint, SIGNAL(clicked()), this, SLOT(clickEvent()));
 
+    _btnPickPlace = new QPushButton("Perform Pick and Place");
+    pLayout->addWidget(_btnPickPlace, row++, 0);
+    connect(_btnPickPlace, SIGNAL(clicked()), this, SLOT(clickEvent()));
+
     pLayout->setRowStretch(row,1);
 
     is_connected = false;
@@ -79,25 +83,30 @@ void Plugin::clickEvent()
     QObject *obj = sender();
     if(obj == _btnConnect)
     {
-        log().info() << "Button 1 pressed!\n";
+        log().info() << "Connect button pressed!\n";
         connectRobot();
 
     }
     else if(obj == _btnHome)
     {
-        log().info() << "Button 2 pressed!\n";
+        log().info() << "Home robot pressed!\n";
         homeRobot();
     }
 
     else if(obj == _btnMimic)
     {
-        log().info() << "Button 3 pressed!\n";
+        log().info() << "Mimic button pressed!\n";
         startRobotMimic();
     }
     else if (obj == _btnPrint)
     {
         log().info() << "Button Print pressed!\n";
         printLocation();
+    }
+    else if (obj == _btnPickPlace)
+    {
+        log().info() << "Button Pick and Place pressed!\n";
+        startPickPlace();
     }
 }
 
@@ -111,6 +120,13 @@ void Plugin::startRobotMimic()
     if(robotMimicThread.joinable())
         robotMimicThread.join();
     robotMimicThread = std::thread(&Plugin::runRobotMimic, this);
+}
+
+void Plugin::startPickPlace()
+{
+    if(moveThread.joinable())
+        moveThread.join();
+    moveThread = std::thread(&Plugin::pickandPlace, this);
 }
 
 void Plugin::runRobotMimic()
@@ -144,7 +160,7 @@ void Plugin::homeRobot()
     std::vector<std::vector<double>> path;
     std::vector<double> fromQ = ur_robot_receive->getActualQ();
     std::vector<double> toQ = homeQ;
-    rw::kinematics::State tmp_state = rws_state;
+    rw::kinematics::State tmp_state = rws_state.clone();
 
     createPathRRTConnect(fromQ, toQ, 0.05, path, tmp_state);
 
@@ -176,11 +192,11 @@ void Plugin::connectRobot()
     std::cout << "Connecting to " << ur_robot_ip << std::endl;
     if(!is_connected)
     {
-        std::cout << "Control interface:\t" << std::endl;
+        std::cout << "Control interface connecting\t" << std::endl;
         ur_robot = new ur_rtde::RTDEControlInterface(ur_robot_ip);
-        std::cout << "Receive interface:\t" << std::endl;
+        std::cout << "Receive interface connecting\t" << std::endl;
         ur_robot_receive = new ur_rtde::RTDEReceiveInterface(ur_robot_ip);
-        std::cout << "IO interface:\t" << std::endl;
+        std::cout << "IO interface connecting\t" << std::endl;
         ur_robot_io = new ur_rtde::RTDEIOInterface(ur_robot_ip);
 
         is_connected = true;
@@ -203,12 +219,42 @@ void Plugin::createPathRRTConnect(std::vector<double> start, std::vector<double>
     std::cout << "Found path" << std::endl;
 
     path.clear();
+    std::cout << "1" << std::endl;
     //Pushing path to output
     for(const auto &q : qpath)
     {
+        std::cout << "2" << std::endl;
         std::vector<double> q_copy = q.toStdVector();
         path.push_back(addMove(q_copy, 0.4, 0.4));
     }
+}
+
+void Plugin::moveToJ(std::vector<double> goal, double acc, double vel)
+{
+    if(!is_connected)
+    {
+        std::cout << "No connection to the robot" << std::endl;
+        return;
+    }
+
+    ur_robot->moveJ(goal, acc, vel);
+}
+
+void Plugin::pickandPlace()
+{
+    if(!is_connected)
+    {
+        std::cout << "No connection to the robot" << std::endl;
+        return;
+    }
+
+    moveToJ(homeQ, 0.5, 0.5);
+    moveToJ(pickQ, 0.5, 0.5);
+    moveToJ(homeQ, 0.5, 0.5);
+    moveToJ(placeQ, 0.5, 0.5);
+    moveToJ(homeQ, 0.5, 0.5);
+
+    return;
 }
 
 std::vector<double> Plugin::addMove(std::vector<double> pos, double acc = 0.5, double vel = 0.5)

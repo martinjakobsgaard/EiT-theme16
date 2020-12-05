@@ -40,7 +40,13 @@ public:
 
     void runRobotMimic();
     void connectRobot();
+
     void startRobotMimic();
+    void startPickPlace();
+
+    void moveToJ(std::vector<double> goal, double acc, double vel);
+
+    void pickandPlace();
 
     void printLocation();
     void printArray(std::vector<double> print);
@@ -65,11 +71,20 @@ private:
     rw::models::WorkCell::Ptr rws_wc;
     rw::kinematics::State rws_state;
     rw::models::Device::Ptr rws_robot;
-    QPushButton *_btnConnect,*_btnHome, *_btnMimic, *_btnPrint;
+    QPushButton *_btnConnect,*_btnHome, *_btnMimic, *_btnPrint, *_btnPickPlace;
 
     std::vector<double> homeQ = { 2.04046, -1.47102, 1.17649, -1.26727, -1.54478, -0.120219 };
 
+    //Locations
+    std::vector<double> pickQ = { 0.844511, -1.46255, 1.79629, -1.94328, -1.52762, -0.168244 };
+    std::vector<double> pickTCP = { -0.244121, -0.479221, 0.36019, 0.867022, 3.00104, -0.0799999 };
+
+    std::vector<double> placeQ = {2.76091, -1.182, 1.65908, -2.00515, -1.52773, -0.168448};
+    std::vector<double> placeTCP = {0.612378, -0.0987183, 0.2712, -1.95912, 2.43967, 0.0864251};
+
+    //Threads
     std::thread robotMimicThread;
+    std::thread moveThread;
 };
 
 #endif /*PLUGIN_HPP*/
