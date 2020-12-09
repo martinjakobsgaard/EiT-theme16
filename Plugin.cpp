@@ -275,9 +275,12 @@ void Plugin::pickandPlace()
 
     performRRT(homeQ);
     performRRT(pickQ);
-    performRRT(homeQ);
-    performRRT(placeQ);
-    performRRT(homeQ);
+    performRRT(approachQ);
+    performRRT(collisionFirstQ);
+    performRRT(startLiftQ);
+    performRRT(otherStartLiftQ);
+    performRRT(endLiftQ);
+    performRRT(weDoneQ);
 
     return;
 }

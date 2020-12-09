@@ -1,0 +1,7 @@
+1. Approach
+2. Collision First time
+3. Start of lift
+4. Other start of lift?
+5. Delete
+7. End of lift
+8. We done it

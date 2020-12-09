@@ -24,7 +24,7 @@
 	<Frame name="Gripper" refframe="UR5e_2018.Flange" type="Fixed">
 	  <RPY> 0 0 90</RPY> <Pos> 0 -0.05 0 </Pos>
 	  <Drawable name="GripperDrawable">
-	   <Polytope file="objects/mini_gripper_4000.stl"/>
+	   <Polytope file="objects/mini_gripper_5000_and_a_half.stl"/>
 	  </Drawable>
 	 </Frame>
 
