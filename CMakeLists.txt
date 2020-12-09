@@ -50,7 +50,7 @@ set(CMAKE_AUTORCC ON)
 find_package(ur_rtde REQUIRED)
 
 # Add the source files to build
-set(SrcFiles Plugin.cpp resources.qrc)
+set(SrcFiles Plugin.cpp gripper_control.h gripper_control.cpp rs232.h rs232.c resources.qrc)
 
 # The shared library to build:
 add_library(Plugin MODULE ${SrcFiles})

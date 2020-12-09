@@ -23,6 +23,9 @@
 #include <utility>
 #include <chrono>
 
+// Motor communication
+#include "gripper_control.h"
+
 class QPushButton;
 
 class Plugin: public rws::RobWorkStudioPlugin
@@ -69,12 +72,17 @@ private:
     ur_rtde::RTDEIOInterface        *ur_robot_io;
     ur_rtde::RTDEReceiveInterface   *ur_robot_receive;
 
+    // Robwork
     rw::proximity::CollisionDetector::Ptr collisionDetector;
     rw::models::WorkCell::Ptr rws_wc;
     rw::kinematics::State rws_state;
     rw::models::Device::Ptr rws_robot;
     QPushButton *_btnConnect,*_btnHome, *_btnMimic, *_btnPrint, *_btnPickPlace;
 
+    // Gripper control
+    GripperControl gripperControl;
+
+    //Home position
     std::vector<double> homeQ = { 2.04046, -1.47102, 1.17649, -1.26727, -1.54478, 0 };
 
     //Locations

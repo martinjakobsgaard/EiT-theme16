@@ -179,6 +179,8 @@ void Plugin::printArray(std::vector<double> print)
 
 void Plugin::printLocation()
 {
+    gripperControl.sendMessage(BACK, 50);
+
     std::cout << "Joint configuration:" << std::endl;
     std::vector<double> actualQ=ur_robot_receive->getActualQ();
     printArray(actualQ);
@@ -228,6 +230,8 @@ void Plugin::connectRobot()
 
         is_connected = true;
         std::cout << "Done connecting" << std::endl;
+
+        std::cout << "Connecting to motor" << std::endl;
     }
     else
         std::cout << "Already connected..." << std::endl;
