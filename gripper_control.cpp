@@ -1,6 +1,7 @@
 #include "gripper_control.h"
 
-GripperControl::GripperControl() {
+GripperControl::GripperControl()
+{
     writer = RS232_OpenComport(COMPORT, 9600, "8N1", 0);
 }
 

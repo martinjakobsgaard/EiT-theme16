@@ -49,6 +49,8 @@ set(CMAKE_AUTORCC ON)
 # RTDE
 find_package(ur_rtde REQUIRED)
 
+#find_package(serial REQUIRED)
+
 # Add the source files to build
 set(SrcFiles Plugin.cpp gripper_control.h gripper_control.cpp rs232.h rs232.c resources.qrc)
 
