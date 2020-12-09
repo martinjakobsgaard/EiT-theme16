@@ -13,10 +13,24 @@
 	<!-- Robot Arm -->
 
     <Frame name="URReference" refframe="Table" type="Movable">
-        <RPY>112.5 0 0</RPY>
+        <RPY>60 0 0</RPY>
 	<Pos>-0.275 0 0.1351</Pos> <!-- was 117.5 --> <!-- 35 mm  is the black thingy -->
     </Frame>
     <Include file="devices/UR5e_2018/UR5e.xml" />
+
+
+    	<!-- Gripper -->
+
+	<Frame name="Gripper" refframe="UR5e_2018.Flange" type="Fixed">
+	  <RPY> 0 0 90</RPY> <Pos> 0 -0.05 0 </Pos>
+	  <Drawable name="GripperDrawable">
+	   <Polytope file="objects/mini_gripper_4000.stl"/>
+	  </Drawable>
+	 </Frame>
+
+	<Frame name="GraspTCP" refframe="UR5e_2018.Flange" type="Fixed">
+		<RPY>0 0 0</RPY> <Pos>0 0 0.095</Pos>
+	</Frame>
 
 	<!-- Collision -->
 

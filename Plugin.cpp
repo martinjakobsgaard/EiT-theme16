@@ -140,9 +140,8 @@ void Plugin::runRobotMimic()
     while(true)
     {
         std::vector<double> currentQ = ur_robot_receive->getActualQ();
-        rw::kinematics::State s = rws_state;
-        rws_robot->setQ(currentQ, s);
-        getRobWorkStudio()->setState(s);
+        rws_robot->setQ(currentQ, rws_state);
+        getRobWorkStudio()->setState(rws_state);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
@@ -165,6 +164,8 @@ void Plugin::homeRobot()
     createPathRRTConnect(fromQ, toQ, 0.05, path, tmp_state);
 
     std::cout << "Moving robot..." << std::endl;
+    printArray(path[0]);
+    printArray(path[1]);
     ur_robot->moveJ(path);
 }
 
@@ -185,6 +186,32 @@ void Plugin::printLocation()
     std::cout << "TCP location:" << std::endl;
     std::vector<double> actualL=ur_robot_receive->getActualTCPPose();
     printArray(actualL);
+}
+
+void Plugin::performRRT(std::vector<double> toQ)
+{
+    if(!is_connected)
+    {
+        std::cout << "No connection to the robot" << std::endl;
+        return;
+    }
+
+    std::vector<std::vector<double>> path;
+    std::vector<double> fromQ = ur_robot_receive->getActualQ();
+    rw::kinematics::State tmp_state = rws_state.clone();
+
+    createPathRRTConnect(fromQ, toQ, 0.05, path, tmp_state);
+
+    std::cout << "Moving robot..." << std::endl;
+
+    std::cout << "Size of path is: " << path.size() << std::endl;
+
+    for (size_t i = 0; i < path.size(); i++)
+    {
+        std::cout << "Performing movement " << i << std::endl;
+        std::vector<double> subvector = {path[i].begin(), path[i].end() - 2};
+        ur_robot->moveJ(subvector, path[i].at(6), path[i].at(7));
+    }
 }
 
 void Plugin::connectRobot()
@@ -219,11 +246,9 @@ void Plugin::createPathRRTConnect(std::vector<double> start, std::vector<double>
     std::cout << "Found path" << std::endl;
 
     path.clear();
-    std::cout << "1" << std::endl;
     //Pushing path to output
     for(const auto &q : qpath)
     {
-        std::cout << "2" << std::endl;
         std::vector<double> q_copy = q.toStdVector();
         path.push_back(addMove(q_copy, 0.4, 0.4));
     }
@@ -248,11 +273,11 @@ void Plugin::pickandPlace()
         return;
     }
 
-    moveToJ(homeQ, 0.5, 0.5);
-    moveToJ(pickQ, 0.5, 0.5);
-    moveToJ(homeQ, 0.5, 0.5);
-    moveToJ(placeQ, 0.5, 0.5);
-    moveToJ(homeQ, 0.5, 0.5);
+    performRRT(homeQ);
+    performRRT(pickQ);
+    performRRT(homeQ);
+    performRRT(placeQ);
+    performRRT(homeQ);
 
     return;
 }
