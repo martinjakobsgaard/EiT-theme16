@@ -1,7 +1,9 @@
-1. Approach
-2. Collision First time
-3. Start of lift
-4. Other start of lift?
-5. Delete
-7. End of lift
-8. We done it
+1. Approach far out
+2. Approach close - outdated
+3. First contact - outdated
+4. Approach close
+5. First contact
+6. Small lift
+7. Forklifts under
+8. Lifted
+9. Away
