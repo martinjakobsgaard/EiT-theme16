@@ -55,7 +55,7 @@ class gripper_control:
         time.sleep(1)
 
     def robot_movement(self):
-        time.sleep(10)
+        time.sleep(5)
         self.control.moveL(p1, 0.4, 0.4)
         self.control.moveL(p2, 0.4, 0.4)
         self.control.moveL(p3, 0.4, 0.4)
@@ -88,16 +88,20 @@ class gripper_control:
                 time.sleep(1)
                 self.writer.write(struct.pack('>BB', BACK, 155))
                 self.move_back = False
-                time.sleep(1.5)
+                time.sleep(1.9)
                 self.writer.write(struct.pack('>BB', BACK, 255))
-                time.sleep(10.5)
+                time.sleep(4)
+                self.writer.write(struct.pack('>BB', BACK, 155))
+                time.sleep(1.9)
             if self.move_forward:
                 time.sleep(1)
                 self.writer.write(struct.pack('>BB', FRONT, 155))
                 self.move_forward = False
-                time.sleep(1.5)
+                time.sleep(1.9)
                 self.writer.write(struct.pack('>BB', FRONT, 255))
-                time.sleep(10.5)
+                time.sleep(4)
+                self.writer.write(struct.pack('>BB', FRONT, 155))
+                time.sleep(1.9)
                 break
         #print("Done with while true")
 
